@@ -17,6 +17,8 @@ class Category extends Model
     protected $fillable = ['name', 'slug'];
     //Para consultar las  relaciones
     protected $allowIncluded = ['posts', 'posts.user'];
+    //Para filtrar
+    protected $allowFilter = ['id', 'name', 'slug'];
     /*************************
      * Relación uno a muchos *
      *************************/
@@ -25,8 +27,10 @@ class Category extends Model
     {
         return $this->hasMany(Post::class);
     }
-
-    // scope para modificar las consultas
+    /**************************************
+     * scope para modificar las consultas *
+     **************************************/
+    //Para ver categoría y sus relaciones
     public function scopeIncluded(Builder $query)
     {
         // comprueba si allowIncluded y included no están vacíos
@@ -43,6 +47,19 @@ class Category extends Model
             }
             //se utiliza el método with() de Laravel para incluir todas las relaciones permitidas en la consulta
             $query->with($relations);
+        }
+    }
+    // Para filtrar por campos
+    public function scopeFilter(Builder $query)
+    {
+        if (!empty([$this->allowFilter, request('filter')])) {
+            $filters = request('filter');
+            $allowFilter = collect($this->allowFilter);
+            foreach ($filters as $filter => $value) {
+                if ($allowFilter->contains($filter)) {
+                    $query->where($filter, 'LIKE', '%' . $value . '%');
+                }
+            }
         }
     }
 }
