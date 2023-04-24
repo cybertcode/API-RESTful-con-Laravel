@@ -22,6 +22,13 @@ class Post extends Model
     protected $fillable = ['name', 'slug', 'extract', 'body', 'status', 'category_id', 'user_id'];
     const BORRADOR = 1;
     const PUBLICADO = 2;
+    //Para consultar las  relaciones
+    protected $allowIncluded = ['user', 'category', 'tags', 'images'];
+    //Para filtrar
+    protected $allowFilter = ['id', 'name', 'slug', 'extract', 'body'];
+    // Para ordernar
+    protected $allowSort = ['id', 'name', 'slug', 'extract', 'body'];
+
     /*********************************
      * Relación uno a muchos inversa *
      *********************************/
