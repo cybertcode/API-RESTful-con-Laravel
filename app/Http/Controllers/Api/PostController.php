@@ -36,7 +36,7 @@ class PostController extends Controller
         ]);
         $user = auth()->user();
         //Agregamos el campo de user_id
-        $user['user_id'] = $user->id();
+        $data['user_id'] = $user->id;
         // Para asignación masiva con create  en el modelo agregar el fillable
         $posts = Post::create($data);
         return postResource::make($posts);
