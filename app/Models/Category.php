@@ -81,7 +81,20 @@ class Category extends Model
             if ($allowSort->contains($sortField)) {
                 $query->orderBy($sortField, $direction);
             }
-
         }
+    }
+    public function scopeGetOrPaginate(Builder $query)
+    {
+        if (request('perPage')) {
+            $perPage = intval(request('perPage')); //convertimos a un entero
+            //Si es un entero
+            if ($perPage) {
+                //paginar
+                return $query->paginate($perPage);
+            }
+        }
+        //caso contrario mostrar todos los registros
+        return $query->get();
+
     }
 }
