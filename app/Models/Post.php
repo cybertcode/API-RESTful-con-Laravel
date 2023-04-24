@@ -5,12 +5,14 @@ namespace App\Models;
 use App\Models\Category;
 use App\Models\Tag;
 use App\Models\User;
+use App\Traits\ApiTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+//Trait creado
 
 class Post extends Model
 {
-    use HasFactory;
+    use HasFactory, ApiTrait;
     const BORRADOR = 1;
     const PUBLICADO = 2;
     /*********************************

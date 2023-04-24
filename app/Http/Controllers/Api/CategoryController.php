@@ -31,7 +31,8 @@ class CategoryController extends Controller
         ]);
         // Para asignación masiva con create  en el modelo agregar el fillable
         $category = Category::create($request->all());
-        return $category;
+        return CategoryResource::make($category);
+
     }
 
     /**
@@ -54,7 +55,7 @@ class CategoryController extends Controller
             'slug' => 'required|max:255|unique:categories,slug,' . $category->id,
         ]);
         $category->update($request->all());
-        return $category;
+        return CategoryResource::make($category);
 
     }
 
@@ -64,6 +65,7 @@ class CategoryController extends Controller
     public function destroy(Category $category)
     {
         $category->delete();
-        return $category;
+        return CategoryResource::make($category);
+
     }
 }
