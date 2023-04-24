@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-
+Route::post('login', [LoginController::class, 'store']);
 Route::post('/register', [RegisterController::class, 'store'])->name('api.v1.register');
 /*************************
  * Rutas para categorías *
