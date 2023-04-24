@@ -32,7 +32,6 @@ class CategoryController extends Controller
         // Para asignación masiva con create  en el modelo agregar el fillable
         $category = Category::create($request->all());
         return CategoryResource::make($category);
-
     }
 
     /**

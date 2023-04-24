@@ -8,11 +8,18 @@ use App\Models\User;
 use App\Traits\ApiTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+
 //Trait creado
 
 class Post extends Model
 {
     use HasFactory, ApiTrait;
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = ['name', 'slug', 'extract', 'body', 'status', 'category_id', 'user_id'];
     const BORRADOR = 1;
     const PUBLICADO = 2;
     /*********************************
