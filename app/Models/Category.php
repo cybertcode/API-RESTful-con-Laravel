@@ -19,6 +19,8 @@ class Category extends Model
     protected $allowIncluded = ['posts', 'posts.user'];
     //Para filtrar
     protected $allowFilter = ['id', 'name', 'slug'];
+    // Para ordernar
+    protected $allowSort = ['id', 'name', 'slug'];
     /*************************
      * Relación uno a muchos *
      *************************/
@@ -52,14 +54,34 @@ class Category extends Model
     // Para filtrar por campos
     public function scopeFilter(Builder $query)
     {
-        if (!empty([$this->allowFilter, request('filter')])) {
-            $filters = request('filter');
-            $allowFilter = collect($this->allowFilter);
-            foreach ($filters as $filter => $value) {
-                if ($allowFilter->contains($filter)) {
-                    $query->where($filter, 'LIKE', '%' . $value . '%');
-                }
+        if (empty($this->allowFilter) || empty(request('filter'))) {
+            return;
+        }
+        $filters = request('filter');
+        $allowFilter = collect($this->allowFilter);
+        foreach ($filters as $filter => $value) {
+            if ($allowFilter->contains($filter)) {
+                $query->where($filter, 'LIKE', '%' . $value . '%');
             }
+        }
+    }
+    public function scopeSort(Builder $query)
+    {
+        if (empty($this->allowSort) || empty(request('sort'))) {
+            return;
+        }
+        $sortFields = explode(',', request('sort'));
+        $allowSort = collect($this->allowSort);
+        foreach ($sortFields as $sortField) {
+            $direction = 'asc';
+            if (substr($sortField, 0, 1) == '-') {
+                $direction = 'desc';
+                $sortField = substr($sortField, 1);
+            }
+            if ($allowSort->contains($sortField)) {
+                $query->orderBy($sortField, $direction);
+            }
+
         }
     }
 }
