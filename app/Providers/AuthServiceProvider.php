@@ -25,6 +25,5 @@ class AuthServiceProvider extends ServiceProvider
     {
         // Para laravel/Passport
         Passport::loadKeysFrom(__DIR__ . '/../secrets/oauth');
-
     }
 }

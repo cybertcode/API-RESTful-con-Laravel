@@ -14,7 +14,6 @@ class AccessToken extends Model
      * @var array
      */
     protected $fillable = ['user_id', 'service_id', 'access_token', 'refresh_token', 'expires_at'];
-
     /******************************
      * Relación a nivel de modelo *
      ******************************/
