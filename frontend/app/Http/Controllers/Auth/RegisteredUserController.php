@@ -48,8 +48,8 @@ class RegisteredUserController extends Controller
         // Para el token
         $response = Http::acceptJson()->post('http://127.0.0.1:8000/oauth/token', [
             'grant_type' => 'password',
-            'client_id' => '99029efc-1374-4e55-9070-535d099594c7',
-            'client_secret' => 'j7HhxX6ZJtCcRDTkd3s2oNC2xWFslyVebPZPLTCh',
+            'client_id' => config('services.cybertcode.client_id'),
+            'client_secret' => config('services.cybertcode.client_secret'),
             'username' => $request->email,
             'password' => $request->password,
         ]);
