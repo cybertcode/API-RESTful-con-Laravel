@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
+use App\Traits\Token;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,6 +14,7 @@ use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
+    use Token;
     /**
      * Display the login view.
      */
@@ -44,21 +46,10 @@ class AuthenticatedSessionController extends Controller
         }
         $service = $response->json();
         $user = User::updateOrCreate(['email' => $request->email], $service['data']);
+        // return config('services.cybertcode.client_secret');
         if (!$user->accessToken) {
-            $response = Http::acceptJson()->post('http://127.0.0.1:8000/oauth/token', [
-                'grant_type' => 'password',
-                'client_id' => config('services.cybertcode.client_id'),
-                'client_secret' => config('services.cybertcode.client_secret'),
-                'username' => $request->email,
-                'password' => $request->password,
-            ]);
-            $access_token = $response->json();
-            $user->accessToken()->create([
-                'service_id' => $service['data']['id'],
-                'access_token' => $access_token['access_token'],
-                'refresh_token' => $access_token['refresh_token'],
-                'expires_at' => now()->addSecond($access_token['expires_in']),
-            ]);
+            // Llamamos nuestro trait
+            $this->getAccessToken($user, $service);
         }
         Auth::login($user, $request->remember);
         return redirect()->intended(RouteServiceProvider::HOME);

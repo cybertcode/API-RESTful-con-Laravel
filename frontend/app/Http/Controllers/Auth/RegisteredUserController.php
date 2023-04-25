@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
+use App\Traits\Token;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,6 +16,7 @@ use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
+    use Token;
     /**
      * Display the registration view.
      */
@@ -46,25 +48,10 @@ class RegisteredUserController extends Controller
             // 'password' => Hash::make($request->password),
         ]);
         // Para el token
-        $response = Http::acceptJson()->post('http://127.0.0.1:8000/oauth/token', [
-            'grant_type' => 'password',
-            'client_id' => config('services.cybertcode.client_id'),
-            'client_secret' => config('services.cybertcode.client_secret'),
-            'username' => $request->email,
-            'password' => $request->password,
-        ]);
-        $access_token = $response->json();
-        $user->accessToken()->create([
-            'service_id' => $service['data']['id'],
-            'access_token' => $access_token['access_token'],
-            'refresh_token' => $access_token['refresh_token'],
-            'expires_at' => now()->addSecond($access_token['expires_in']),
-        ]);
-
+        // Llamamos nuestro trait
+        $this->getAccessToken($user, $service);
         event(new Registered($user));
-
         Auth::login($user);
-
         return redirect(RouteServiceProvider::HOME);
     }
 }
