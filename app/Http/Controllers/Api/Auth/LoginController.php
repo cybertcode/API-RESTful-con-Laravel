@@ -13,17 +13,16 @@ class LoginController extends Controller
     //access login method
     public function store(Request $request)
     {
-        $request->validate(
-            [
-                'email' => 'required|string|email',
-                'password' => 'required|string',
-            ]
-        );
-        $user = User::where('email', $request->email)->firstOrFail();
-        if (Hash::check($request->password, $user->password)) {
-            return UserResource::make($user);
-        } else {
-            return response()->json(['message' => '¡Los datos ingresos no son correctos!', 404]);
+        $validated = $request->validate([
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string'],
+        ]);
+        // $user = User::where('email', $validated['email'])->first();
+        $user = User::where('email', $validated['email'])->firstOrFail();
+        if (!$user || !Hash::check($validated['password'], $user->password)) {
+            return response()->json(['message' => '¡Los datos ingresados son incorrectos!'], 404);
         }
+        return UserResource::make($user);
     }
+
 }

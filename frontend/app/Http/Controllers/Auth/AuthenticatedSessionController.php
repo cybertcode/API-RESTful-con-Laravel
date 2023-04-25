@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Providers\RouteServiceProvider;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -34,15 +35,34 @@ class AuthenticatedSessionController extends Controller
             'email' => 'required|string|email',
             'password' => 'required|string',
         ]);
-        $response = Http::withHeaders([
-            'Accept' => 'application/json',
-        ])->post('http://127.0.0.1:8000/v1/login', [
+        $response = Http::acceptJson()->post('http://127.0.0.1:8000/v1/login', [
             'email' => $request->email,
-            'password' => $request->password]);
-        // return $response->json();
-        $response = $response->json();
-        $user = User::updateOrcreate(['email' => $request->email], $response['data']);
-        return $user;
+            'password' => $request->password,
+        ]);
+        if ($response->failed()) {
+            return back()->withErrors(['email' => 'Credenciales incorrectas']);
+        }
+        $service = $response->json();
+        $user = User::updateOrCreate(['email' => $request->email], $service['data']);
+        if (!$user->accessToken) {
+            $response = Http::acceptJson()->post('http://127.0.0.1:8000/oauth/token', [
+                'grant_type' => 'password',
+                'client_id' => '99029efc-1374-4e55-9070-535d099594c7',
+                'client_secret' => 'j7HhxX6ZJtCcRDTkd3s2oNC2xWFslyVebPZPLTCh',
+                'username' => $request->email,
+                'password' => $request->password,
+            ]);
+            $access_token = $response->json();
+            $user->accessToken()->create([
+                'service_id' => $service['data']['id'],
+                'access_token' => $access_token['access_token'],
+                'refresh_token' => $access_token['refresh_token'],
+                'expires_at' => now()->addSecond($access_token['expires_in']),
+            ]);
+        }
+        Auth::login($user, $request->remember);
+        return redirect()->intended(RouteServiceProvider::HOME);
+        // return $user;
     }
 
     /**

@@ -2,7 +2,9 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Validation\ValidationException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -44,6 +46,21 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
-
+    }
+    //Para manejar exception y datos no válidos
+    protected function invalidJson($request, ValidationException $exception)
+    {
+        return response()->json([
+            'message' => 'Los datos proporcionados no son válidos.',
+            'errors' => $exception->errors(),
+        ], $exception->status);
+    }
+    // Para manejar el error al usar findOrFail()
+    public function render($request, Throwable $exception)
+    {
+        if ($exception instanceof ModelNotFoundException) {
+            return response()->json(["message" => "¡Ups modelo no encontrado"], 400);
+        }
+        return parent::render($request, $exception);
     }
 }
